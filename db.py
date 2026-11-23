@@ -263,6 +263,9 @@ def init():
         CREATE TABLE IF NOT EXISTS refund_reqs(
             id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, plan_id INTEGER, price REAL DEFAULT 0, hold REAL DEFAULT 0,
             status TEXT DEFAULT 'pending', created INTEGER, decided INTEGER DEFAULT 0);
+        CREATE TABLE IF NOT EXISTS api_orders(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ref TEXT, order_no TEXT DEFAULT '',
+            state TEXT DEFAULT 'working', created INTEGER, UNIQUE(user_id, ref));
         CREATE INDEX IF NOT EXISTS ix_pay_status ON pay_orders(status, created);
         CREATE INDEX IF NOT EXISTS ix_keys_plan ON keys(plan_id, used);
         CREATE INDEX IF NOT EXISTS ix_orders_user ON orders(user_id);
@@ -279,7 +282,14 @@ def init():
                     "ALTER TABLE plans ADD COLUMN base_price REAL DEFAULT 0",
                     "ALTER TABLE plans ADD COLUMN manual INTEGER DEFAULT 0",
                     "ALTER TABLE deposits ADD COLUMN utr TEXT DEFAULT ''",
-                    "ALTER TABLE deposits ADD COLUMN proof TEXT DEFAULT ''"):
+                    "ALTER TABLE deposits ADD COLUMN proof TEXT DEFAULT ''",
+                    # V20 - RGAPI (reseller API)
+                    "ALTER TABLE users ADD COLUMN api_on INTEGER DEFAULT 0",
+                    "ALTER TABLE users ADD COLUMN api_token TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN api_last INTEGER DEFAULT 0",
+                    "ALTER TABLE users ADD COLUMN api_ip TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN api_cnt INTEGER DEFAULT 0",
+                    "ALTER TABLE orders ADD COLUMN src TEXT DEFAULT ''"):
             try:
                 c.execute(ddl)
             except sqlite3.OperationalError:

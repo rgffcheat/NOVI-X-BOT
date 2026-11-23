@@ -463,7 +463,14 @@ def profile_screen(u):
         f"└── {E('calendar')} Joined: {ist(u['joined'], '%Y-%m-%d')} IST\n\n"
         f"{E('user')} {role}"
     )
-    return text, KB([back_btn()])
+    rows = []
+    try:
+        if u["api_on"] and PUBLIC_URL.startswith("https://"):          # V20: RGAPI System button (only when the owner switched it ON)
+            rows.append([{"text": "🔑 RGAPI System", "web_app": {"url": PUBLIC_URL + "/rgapi/login"}, "style": "primary"}])
+    except (KeyError, IndexError):
+        pass
+    rows.append([back_btn()])
+    return text, KB(*rows)
 
 
 def ref_screen(u):
